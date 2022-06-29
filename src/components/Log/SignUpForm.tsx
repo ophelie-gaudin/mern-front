@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 
 const SignUpForm = () => {
@@ -6,15 +6,38 @@ const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [controlPassword, setControlPassword] = useState("");
+  const [isTermsChecked, setTerms] = useState(false);
+  const [errors, setErrors] = useState({
+    password: "",
+    controlPassword: "",
+    email: "",
+    terms: "",
+  });
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const terms = document.getElementById("terms");
-    const passwordError = document.getElementById(".error.pseudo");
-    const pseudoError = document.getElementById(".error.pseudo");
-    const emailError = document.getElementById(".error.email");
-    const ConirmePasswPassordError = document.getElementById(".error.pseudo");
-    const termsError = document.getElementById(".terms.error");
+    // const terms = document.getElementById(".terms") as HTMLInputElement;
+    // const pseudoError = document.querySelector(".error.pseudo");
+    // const emailError = document.querySelector(".error.email");
+    // const passwordError = document.querySelector(".error.password");
+    // const controlPasswordError = document.querySelector(
+    //   ".error.control-password"
+    // );
+    // const termsError = document.querySelector(".terms.error");
+
+    if (password !== controlPassword) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        controlPassword: "Les mots de passe doivent être identiques.",
+      }));
+    }
+
+    if (!isTermsChecked) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        terms: "signe ca ducon !",
+      }));
+    }
   };
 
   return (
@@ -68,17 +91,20 @@ const SignUpForm = () => {
         value={controlPassword}
       />
       <br />
-      <div className="controlPassword error"></div>
+      <div className="control-password error">{errors.controlPassword}</div>
       <br />
       <br />
-      <input type="checkbox" id="terms" />
+      <input
+        type="checkbox"
+        id="terms"
+        onChange={(e) => setTerms(e.target.checked)}
+      />
       <label htmlFor="terms">
         J'accepte les{" "}
         <a href="/" target="_blank" rel="noopener noreferrer">
-          const passwordError = document.getElementById(".error.pseudo");
           conditions générales.
         </a>{" "}
-        <div className="terms error"></div>
+        <div className="terms error">{errors.terms}</div>
       </label>
       <input type="submit" value="Valider mon inscription" />
     </form>
