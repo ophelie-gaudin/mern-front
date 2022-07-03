@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SignUpForm = () => {
   const [pseudo, setPseudo] = useState("");
@@ -14,29 +15,52 @@ const SignUpForm = () => {
     terms: "",
   });
 
+  const navigate = useNavigate();
+
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const terms = document.getElementById(".terms") as HTMLInputElement;
-    // const pseudoError = document.querySelector(".error.pseudo");
-    // const emailError = document.querySelector(".error.email");
-    // const passwordError = document.querySelector(".error.password");
-    // const controlPasswordError = document.querySelector(
-    //   ".error.control-password"
-    // );
-    // const termsError = document.querySelector(".terms.error");
 
-    if (password !== controlPassword) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        controlPassword: "Les mots de passe doivent être identiques.",
-      }));
-    }
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      controlPassword: "",
+      terms: "",
+    }));
 
-    if (!isTermsChecked) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        terms: "signe ca ducon !",
-      }));
+    if (password !== controlPassword || !isTermsChecked) {
+      if (password !== controlPassword) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          controlPassword: "Les mots de passe doivent être identiques.",
+        }));
+      }
+
+      if (!isTermsChecked) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          terms: "Coche la case pour accepter les conditions générales.",
+        }));
+      }
+    } else {
+      await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}user/register`,
+          {
+            pseudo,
+            email,
+            password,
+          },
+          { withCredentials: true }
+        )
+        .then(function (res) {
+          console.log(res);
+
+          navigate("/");
+        })
+        .catch(function (error) {
+          console.log("Register error: ", error);
+
+          setErrors((prevErrors) => ({ ...prevErrors, error }));
+        });
     }
   };
 
@@ -78,7 +102,7 @@ const SignUpForm = () => {
         value={password}
       />
       <br />
-      <div className="password error"></div>
+      <div className="password error">{errors.password}</div>
       <br />
       <br />
       <label htmlFor="controlPassword">Vérification du mot de passe </label>
